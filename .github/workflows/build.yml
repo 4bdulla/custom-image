@@ -46,7 +46,7 @@ jobs:
           cache: false # sysstate has no go.sum to key a cache on
 
       - name: Stage sysstate
-        run: .sysstate/packaging/stage.sh files/sysstate
+        run: .sysstate/packaging/stage.sh "$PWD/files/sysstate"
 
       - name: Build image
         uses: blue-build/github-action@v1.13
