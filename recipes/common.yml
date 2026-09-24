@@ -1,0 +1,24 @@
+# Modules shared by every host image. Included from each host recipe.
+modules:
+  # sysstate, staged into files/sysstate/ by CI before the build
+  # (packaging/stage.sh in the sysstate repo).
+  - type: files
+    files:
+      - source: sysstate
+        destination: /
+      - source: system
+        destination: /
+
+  - type: systemd
+    user:
+      enabled:
+        - sysstate-collect.timer
+
+  # Last: installs cosign.pub and the policy that makes the host refuse an
+  # unsigned update.
+  - type: signing
+
+  # Test level 1: fail the build on an image bootc would not boot correctly.
+  - type: script
+    snippets:
+      - bootc container lint

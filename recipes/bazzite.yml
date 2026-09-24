@@ -1,0 +1,21 @@
+---
+# yaml-language-server: $schema=https://schema.blue-build.org/recipe-v1.json
+# Host profile, system part: bazzite (HP Victus).
+name: bazzite-host
+description: bazzite-nvidia-open plus this host's packages and sysstate.
+
+base-image: ghcr.io/ublue-os/bazzite-nvidia-open
+image-version: stable
+
+modules:
+  # Replaces the rpm-ostree layers on the host (checked 2026-09-24).
+  # coolercontrol and ghostty come from Terra, which the base already enables;
+  # liquidctl from Fedora. coolercontrold stays disabled, as it is on the host.
+  - type: dnf
+    install:
+      packages:
+        - coolercontrol
+        - ghostty
+        - liquidctl
+
+  - from-file: common.yml

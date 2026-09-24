@@ -1,0 +1,57 @@
+name: bluebuild
+on:
+  schedule:
+    - cron: "00 06 * * *" # daily, after the ublue images build, to pick up base updates
+  push:
+    paths-ignore:
+      - "**.md"
+  pull_request:
+  workflow_dispatch:
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref || github.run_id }}
+  cancel-in-progress: true
+env:
+  # sysstate revision baked into the images.
+  SYSSTATE_REF: main
+jobs:
+  bluebuild:
+    name: Build ${{ matrix.recipe }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+      id-token: write
+    strategy:
+      fail-fast: false
+      matrix:
+        recipe:
+          - aurora.yml
+          - bazzite.yml
+    steps:
+      - uses: actions/checkout@v4
+
+      # sysstate is private, so its checkout needs a token with read access to
+      # that repo; github.token only covers this one.
+      - uses: actions/checkout@v4
+        with:
+          repository: 4bdulla/sysstate
+          ref: ${{ env.SYSSTATE_REF }}
+          token: ${{ secrets.SYSSTATE_TOKEN }}
+          path: .sysstate
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: .sysstate/go.mod
+
+      - name: Stage sysstate
+        run: .sysstate/packaging/stage.sh files/sysstate
+
+      - name: Build image
+        uses: blue-build/github-action@v1.13
+        with:
+          recipe: ${{ matrix.recipe }}
+          skip_checkout: true
+          cosign_private_key: ${{ secrets.SIGNING_SECRET }}
+          registry_token: ${{ github.token }}
+          pr_event_number: ${{ github.event.number }}
+          maximize_build_space: true

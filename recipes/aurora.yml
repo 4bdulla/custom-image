@@ -1,0 +1,12 @@
+---
+# yaml-language-server: $schema=https://schema.blue-build.org/recipe-v1.json
+# Host profile, system part: aurora (EliteBook 850 G5). No layers on the host
+# (checked 2026-09-24), so the only delta over stock is the common modules.
+name: aurora-host
+description: aurora-dx plus sysstate.
+
+base-image: ghcr.io/ublue-os/aurora-dx
+image-version: stable
+
+modules:
+  - from-file: common.yml
