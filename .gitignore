@@ -1,0 +1,3 @@
+cosign.key
+# built by CI from the sysstate repo, see build.yml
+files/sysstate/
