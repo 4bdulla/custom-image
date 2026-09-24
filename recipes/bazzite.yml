@@ -1,0 +1,26 @@
+---
+# yaml-language-server: $schema=https://schema.blue-build.org/recipe-v1.json
+# Host profile, system part: bazzite (HP Victus).
+name: bazzite-host
+description: bazzite-nvidia-open plus this host's packages and sysstate.
+
+base-image: ghcr.io/ublue-os/bazzite-nvidia-open
+image-version: stable
+
+modules:
+  # Replaces the rpm-ostree layers on the host (checked 2026-09-24).
+  # coolercontrold stays disabled, as it is on the host.
+  - type: dnf
+    install:
+      packages:
+        - liquidctl
+
+  # coolercontrol and ghostty come from Terra. The base ships terra.repo
+  # disabled, so enable it for this transaction only, as bazzite's own
+  # Containerfile does. Not the dnf module's `repo:` - that maps to dnf5
+  # --repo, which enables Terra alone and hides the Fedora dependencies.
+  - type: script
+    snippets:
+      - dnf5 -y install --enable-repo=terra coolercontrol ghostty
+
+  - from-file: common.yml
