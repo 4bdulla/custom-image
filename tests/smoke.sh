@@ -13,11 +13,12 @@ image="${host}-host"
 failed=0
 
 check() {
-  local what="$1"; shift
-  if "$@" >/dev/null 2>&1; then
+  local what="$1" out; shift
+  if out=$("$@" 2>&1); then
     echo "PASS  $what"
   else
-    echo "FAIL  $what"
+    echo "FAIL  $what (exit $?)"
+    [ -n "$out" ] && printf '%s\n' "$out" | head -20 | sed 's/^/      /'
     failed=1
   fi
 }
