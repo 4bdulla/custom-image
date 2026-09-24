@@ -46,7 +46,7 @@ jobs:
           cache: false # sysstate has no go.sum to key a cache on
 
       - name: Stage sysstate
-        run: .sysstate/packaging/stage.sh files/sysstate
+        run: .sysstate/packaging/stage.sh "$PWD/files/sysstate"
 
       - name: Build image
         uses: blue-build/github-action@v1.13
@@ -57,3 +57,16 @@ jobs:
           registry_token: ${{ github.token }}
           pr_event_number: ${{ github.event.number }}
           maximize_build_space: true
+
+      # Test level 2. Every build, PRs included, pushes a <short-sha>-<fedora>
+      # tag; smoke-test exactly that image.
+      - name: Smoke test
+        env:
+          TOKEN: ${{ github.token }}
+        run: |
+          host="${{ matrix.recipe }}"; host="${host%.yml}"
+          ref="ghcr.io/${{ github.repository_owner }}/${host}-host"
+          echo "$TOKEN" | podman login ghcr.io -u "${{ github.actor }}" --password-stdin
+          tag=$(skopeo list-tags "docker://$ref" | jq -r '.Tags[]' | grep "^${GITHUB_SHA::7}-" | head -1)
+          test -n "$tag" || { echo "no ${GITHUB_SHA::7}-* tag on $ref"; exit 1; }
+          podman run --rm -e HOST="$host" -v "$PWD":/repo:ro --entrypoint bash "$ref:$tag" /repo/tests/smoke.sh
