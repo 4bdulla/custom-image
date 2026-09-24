@@ -3,6 +3,7 @@ on:
   schedule:
     - cron: "00 06 * * *" # daily, after the ublue images build, to pick up base updates
   push:
+    branches: [main] # branches get built through their PR
     paths-ignore:
       - "**.md"
   pull_request:
@@ -42,6 +43,7 @@ jobs:
       - uses: actions/setup-go@v5
         with:
           go-version-file: .sysstate/go.mod
+          cache: false # sysstate has no go.sum to key a cache on
 
       - name: Stage sysstate
         run: .sysstate/packaging/stage.sh files/sysstate

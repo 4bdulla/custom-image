@@ -9,13 +9,18 @@ image-version: stable
 
 modules:
   # Replaces the rpm-ostree layers on the host (checked 2026-09-24).
-  # coolercontrol and ghostty come from Terra, which the base already enables;
-  # liquidctl from Fedora. coolercontrold stays disabled, as it is on the host.
+  # coolercontrold stays disabled, as it is on the host.
   - type: dnf
     install:
       packages:
-        - coolercontrol
-        - ghostty
         - liquidctl
+
+  # coolercontrol and ghostty come from Terra. The base ships terra.repo
+  # disabled, so enable it for this transaction only, as bazzite's own
+  # Containerfile does. Not the dnf module's `repo:` - that maps to dnf5
+  # --repo, which enables Terra alone and hides the Fedora dependencies.
+  - type: script
+    snippets:
+      - dnf5 -y install --enable-repo=terra coolercontrol ghostty
 
   - from-file: common.yml
