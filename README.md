@@ -15,7 +15,8 @@ sysstate repo, `SYSSTATE_REF` in `build.yml`), image signing, and
 ## CI secrets
 
 - `SIGNING_SECRET` - the cosign private key. `cosign.pub` is its pair.
-- `SYSSTATE_TOKEN` - read access to `4bdulla/sysstate`.
+- `SYSSTATE_DEPLOY_KEY` - private half of a read-only deploy key on
+  `4bdulla/sysstate`.
 
 ## Check a recipe locally
 

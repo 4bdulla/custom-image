@@ -30,13 +30,13 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      # sysstate is private, so its checkout needs a token with read access to
-      # that repo; github.token only covers this one.
+      # sysstate is private: read it with a read-only deploy key on that repo,
+      # not a token that reaches every repo of the account.
       - uses: actions/checkout@v4
         with:
           repository: 4bdulla/sysstate
           ref: ${{ env.SYSSTATE_REF }}
-          token: ${{ secrets.SYSSTATE_TOKEN }}
+          ssh-key: ${{ secrets.SYSSTATE_DEPLOY_KEY }}
           path: .sysstate
 
       - uses: actions/setup-go@v5
