@@ -24,9 +24,18 @@ sysstate repo, `SYSSTATE_REF` in `build.yml`), image signing, and
 podman run --rm -v "$PWD":/bluebuild:Z -w /bluebuild ghcr.io/blue-build/cli:v0.9.37 bluebuild validate recipes/aurora.yml
 ```
 
+## Testing
+
+Levels 1–2 (build, lint, `tests/smoke.sh`) run in CI on every PR and on
+`main`. Level 3, the VM on aurora with the Plasma and sysstate UI check, and
+running levels 1–2 by hand: [docs/testing.md](docs/testing.md).
+
 ## Move a host onto its image
 
-aurora first, bazzite last. Needs sudo, so interactive only.
+aurora first, bazzite last, each after its VM check passes. Needs sudo, so
+interactive only. While the packages are private, the host needs
+`/etc/ostree/auth.json` with a token scoped to `read:packages` only (see
+docs/testing.md, step 0).
 
 ```
 sudo ostree admin pin 0      # keep the stock deployment in the boot menu
